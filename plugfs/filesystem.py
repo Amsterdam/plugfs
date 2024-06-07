@@ -30,7 +30,7 @@ class File(FilesystemItem):
 
 class Adapter(metaclass=ABCMeta):
     @abstractmethod
-    async def list(self, path: str) -> list[str]: ...
+    async def list(self, path: str) -> DirectoryListing: ...
 
 
 @final
@@ -40,5 +40,5 @@ class Filesystem:
     def __init__(self, adapter: Adapter):
         self._adapter = adapter
 
-    async def list(self, path: str) -> list[str]:
+    async def list(self, path: str) -> DirectoryListing:
         return await self._adapter.list(path)
