@@ -21,14 +21,19 @@ class FilesystemItem:
 
 
 class DirectoryListing(Collection[FilesystemItem]):
+    _items: list[FilesystemItem]
+
+    def __init__(self, items: list[FilesystemItem]):
+        self._items = items
+
     def __len__(self) -> int:
-        pass
+        return len(self._items)
 
     def __iter__(self) -> Iterator[FilesystemItem]:
-        pass
+        return iter(self._items)
 
     def __contains__(self, __x: object) -> bool:
-        pass
+        return self._items.__contains__(__x)
 
 
 class Directory(FilesystemItem): ...
