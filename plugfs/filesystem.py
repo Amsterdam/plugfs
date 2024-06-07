@@ -4,8 +4,20 @@ from typing import Collection, final
 
 
 class FilesystemItem:
-    def get_path(self) -> str: ...
-    def get_name(self) -> str: ...
+    _path: str
+    _name: str
+
+    def __init__(self, path: str, name: str):
+        self._path = path
+        self._name = name
+
+    @property
+    def path(self) -> str:
+        return self._path
+
+    @property
+    def name(self) -> str:
+        return self._name
 
 
 class DirectoryListing(Collection[FilesystemItem]):
