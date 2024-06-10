@@ -2,15 +2,15 @@ from os import path
 
 import pytest
 
-from plugfs.filesystem import Directory, File, Filesystem, NotFoundException
+from plugfs.filesystem import Directory, File, NotFoundException
 from plugfs.local import LocalAdapter
 
 
 class TestLocalAdapter:
     @pytest.mark.asyncio
     async def test_list(self) -> None:
-        filesystem = Filesystem(LocalAdapter())
-        items = await filesystem.list(path.join(path.dirname(__file__), "resources"))
+        adapter = LocalAdapter()
+        items = await adapter.list(path.join(path.dirname(__file__), "resources"))
 
         assert len(items) == 2
 
@@ -27,9 +27,9 @@ class TestLocalAdapter:
 
     @pytest.mark.asyncio
     async def test_list_non_existing(self) -> None:
-        filesystem = Filesystem(LocalAdapter())
+        adapter = LocalAdapter()
         with pytest.raises(NotFoundException) as exception_info:
-            await filesystem.list("/this/path/does/not/exist")
+            await adapter.list("/this/path/does/not/exist")
 
         assert (
             str(exception_info.value)
