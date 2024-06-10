@@ -29,7 +29,13 @@ class LocalFile(File):
 
 class LocalAdapter(Adapter):
     async def list(self, path: str) -> DirectoryListing:
-        contents = await listdir(path)
+        try:
+            contents = await listdir(path)
+        except FileNotFoundError as error:
+            raise NotFoundException(
+                f"Failed to retrieve directory listing for '{path}'!"
+            ) from error
+
         items: list[_FilesystemItem] = []
         for item in contents:
             filepath = f"{path}/{item}"
