@@ -14,14 +14,12 @@ async def test_list() -> None:
     assert len(items) == 2
 
     assert isinstance(items[0], File)
-    assert items[0].name == "1mb.bin"
     assert items[0].path == path.join(
         path.abspath(path.dirname(__file__)), "resources", "1mb.bin"
     )
     assert await items[0].size == 1048576
 
     assert isinstance(items[1], Directory)
-    assert items[1].name == "directory"
     assert items[1].path == path.join(
         path.abspath(path.dirname(__file__)), "resources", "directory"
     )

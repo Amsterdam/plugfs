@@ -1,15 +1,22 @@
 import aiofiles
 from aiofiles.os import listdir
-from aiofiles.ospath import getsize, isdir
+from aiofiles.ospath import exists, getsize, isdir, isfile
 
-from plugfs.filesystem import Adapter, Directory, DirectoryListing, File, FilesystemItem
+from plugfs.filesystem import (
+    Adapter,
+    Directory,
+    DirectoryListing,
+    File,
+    FilesystemItem,
+    NotFoundException,
+)
 
 
 class LocalFile(File):
     _adapter: "LocalAdapter"
 
-    def __init__(self, path: str, name: str, adapter: "LocalAdapter") -> None:
-        super().__init__(path, name)
+    def __init__(self, path: str, adapter: "LocalAdapter") -> None:
+        super().__init__(path)
         self._adapter = adapter
 
     @property
@@ -27,9 +34,9 @@ class LocalAdapter(Adapter):
         for item in contents:
             filepath = f"{path}/{item}"
             if await isdir(filepath):
-                items.append(Directory(filepath, item))
+                items.append(Directory(filepath))
             else:
-                items.append(LocalFile(filepath, item, self))
+                items.append(LocalFile(filepath, self))
 
         return items
 
@@ -38,3 +45,9 @@ class LocalAdapter(Adapter):
             data = await file.read()
 
         return data
+
+    async def get_file(self, path: str) -> LocalFile:
+        if await exists(path) and await isfile(path):
+            return LocalFile(path, self)
+
+        raise NotFoundException(f"Failed to find file '{path}'!")
