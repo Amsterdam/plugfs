@@ -7,18 +7,14 @@ from plugfs.filesystem import Adapter, Directory, DirectoryListing, File, Filesy
 
 class LocalFile(File):
     _adapter: "LocalAdapter"
-    _size: int
 
-    def __init__(
-        self, path: str, name: str, size: int, adapter: "LocalAdapter"
-    ) -> None:
+    def __init__(self, path: str, name: str, adapter: "LocalAdapter") -> None:
         super().__init__(path, name)
-        self._size = size
         self._adapter = adapter
 
     @property
-    def size(self) -> int:
-        return self._size
+    async def size(self) -> int:
+        return await getsize(self._path)
 
     async def read(self) -> bytes:
         return await self._adapter.read(self._path)
@@ -33,7 +29,7 @@ class LocalAdapter(Adapter):
             if await isdir(filepath):
                 items.append(Directory(filepath, item))
             else:
-                items.append(LocalFile(filepath, item, await getsize(filepath), self))
+                items.append(LocalFile(filepath, item, self))
 
         return items
 
