@@ -2,8 +2,8 @@ from os import path
 
 import pytest
 
-from plugfs.filesystem import Directory, File, NotFoundException
-from plugfs.local import LocalAdapter
+from plugfs.filesystem import Directory, NotFoundException
+from plugfs.local import LocalAdapter, LocalFile
 
 
 class TestLocalAdapter:
@@ -14,7 +14,7 @@ class TestLocalAdapter:
 
         assert len(items) == 2
 
-        assert isinstance(items[0], File)
+        assert isinstance(items[0], LocalFile)
         assert items[0].path == path.join(
             path.abspath(path.dirname(__file__)), "resources", "1mb.bin"
         )
@@ -52,6 +52,28 @@ class TestLocalAdapter:
 
         with pytest.raises(NotFoundException) as exception_info:
             await adapter.read("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
+        )
+
+    @pytest.mark.asyncio
+    async def test_get_file(self) -> None:
+        adapter = LocalAdapter()
+
+        file = await adapter.get_file(
+            path.join(path.abspath(path.dirname(__file__)), "resources", "1mb.bin")
+        )
+
+        assert isinstance(file, LocalFile)
+
+    @pytest.mark.asyncio
+    async def test_get_file_non_existing(self) -> None:
+        adapter = LocalAdapter()
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await adapter.get_file("/this/path/does/not/exist")
 
         assert (
             str(exception_info.value)
