@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
-from collections.abc import Iterator
-from typing import Collection, final
+from collections.abc import Sequence
+from typing import final
 
 
 class FilesystemItem:
@@ -20,20 +20,7 @@ class FilesystemItem:
         return self._name
 
 
-class DirectoryListing(Collection[FilesystemItem]):
-    _items: list[FilesystemItem]
-
-    def __init__(self, items: list[FilesystemItem]):
-        self._items = items
-
-    def __len__(self) -> int:
-        return len(self._items)
-
-    def __iter__(self) -> Iterator[FilesystemItem]:
-        return iter(self._items)
-
-    def __contains__(self, __x: object) -> bool:
-        return self._items.__contains__(__x)
+DirectoryListing = Sequence[FilesystemItem]
 
 
 class Directory(FilesystemItem): ...

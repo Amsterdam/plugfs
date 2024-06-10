@@ -15,4 +15,4 @@ class LocalAdapter(Adapter):
             else:
                 items.append(File(filepath, item))
 
-        return DirectoryListing(items)
+        return items
