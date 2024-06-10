@@ -31,10 +31,16 @@ class File(FilesystemItem, metaclass=ABCMeta):
     @abstractmethod
     def size(self) -> int: ...
 
+    @abstractmethod
+    async def read(self) -> bytes: ...
+
 
 class Adapter(metaclass=ABCMeta):
     @abstractmethod
     async def list(self, path: str) -> DirectoryListing: ...
+
+    @abstractmethod
+    async def read(self, path: str) -> bytes: ...
 
 
 @final
