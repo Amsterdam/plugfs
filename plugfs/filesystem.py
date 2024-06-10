@@ -26,10 +26,10 @@ DirectoryListing = Sequence[FilesystemItem]
 class Directory(FilesystemItem): ...
 
 
-class File(FilesystemItem):
-    def get_size(self) -> int: ...
-
-    # TODO: read, write, metadata, etc
+class File(FilesystemItem, metaclass=ABCMeta):
+    @property
+    @abstractmethod
+    def size(self) -> int: ...
 
 
 class Adapter(metaclass=ABCMeta):
