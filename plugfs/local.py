@@ -47,8 +47,11 @@ class LocalAdapter(Adapter):
         return items
 
     async def read(self, path: str) -> bytes:
-        async with aiofiles.open(path, mode="rb") as file:
-            data = await file.read()
+        try:
+            async with aiofiles.open(path, mode="rb") as file:
+                data = await file.read()
+        except FileNotFoundError as error:
+            raise NotFoundException(f"Failed to find file '{path}'!") from error
 
         return data
 
