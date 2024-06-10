@@ -3,7 +3,7 @@ from collections.abc import Sequence
 from typing import final
 
 
-class FilesystemItem:
+class _FilesystemItem:
     _path: str
 
     def __init__(self, path: str):
@@ -14,13 +14,13 @@ class FilesystemItem:
         return self._path
 
 
-DirectoryListing = Sequence[FilesystemItem]
+DirectoryListing = Sequence[_FilesystemItem]
 
 
-class Directory(FilesystemItem): ...
+class Directory(_FilesystemItem): ...
 
 
-class File(FilesystemItem, metaclass=ABCMeta):
+class File(_FilesystemItem, metaclass=ABCMeta):
     @property
     @abstractmethod
     async def size(self) -> int: ...

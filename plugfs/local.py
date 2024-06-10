@@ -7,8 +7,8 @@ from plugfs.filesystem import (
     Directory,
     DirectoryListing,
     File,
-    FilesystemItem,
     NotFoundException,
+    _FilesystemItem,
 )
 
 
@@ -30,7 +30,7 @@ class LocalFile(File):
 class LocalAdapter(Adapter):
     async def list(self, path: str) -> DirectoryListing:
         contents = await listdir(path)
-        items: list[FilesystemItem] = []
+        items: list[_FilesystemItem] = []
         for item in contents:
             filepath = f"{path}/{item}"
             if await isdir(filepath):
