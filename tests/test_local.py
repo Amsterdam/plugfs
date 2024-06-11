@@ -1,4 +1,6 @@
+import os
 from os import path
+from uuid import uuid4
 
 import pytest
 
@@ -78,4 +80,38 @@ class TestLocalAdapter:
         assert (
             str(exception_info.value)
             == "Failed to find file '/this/path/does/not/exist'!"
+        )
+
+    @pytest.mark.asyncio
+    async def test_write_new(self) -> None:
+        adapter = LocalAdapter()
+        filepath = path.join("/tmp", str(uuid4()))
+
+        file = await adapter.write(filepath, b"Hello world!")
+        assert await file.size == 12
+
+        os.remove(filepath)
+
+    @pytest.mark.asyncio
+    async def test_write_overwrite_existing(self) -> None:
+        adapter = LocalAdapter()
+        filepath = path.join("/tmp", str(uuid4()))
+        with open(filepath, "wb") as file:
+            file.write(b"Hello!")
+
+        local_file = await adapter.write(filepath, b"Hello world!")
+        assert await local_file.size == 12
+
+        os.remove(filepath)
+
+    @pytest.mark.asyncio
+    async def test_write_non_existing_directory(self) -> None:
+        adapter = LocalAdapter()
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await adapter.write("/this/path/does/not/exist", b"Hello world!")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to write file '/this/path/does/not/exist', directory does not exist!"
         )

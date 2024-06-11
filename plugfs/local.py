@@ -26,6 +26,9 @@ class LocalFile(File):
     async def read(self) -> bytes:
         return await self._adapter.read(self._path)
 
+    async def write(self, data: bytes) -> None:
+        await self._adapter.write(self._path, data)
+
 
 class LocalAdapter(Adapter):
     async def list(self, path: str) -> DirectoryListing:
@@ -60,3 +63,14 @@ class LocalAdapter(Adapter):
             return LocalFile(path, self)
 
         raise NotFoundException(f"Failed to find file '{path}'!")
+
+    async def write(self, path: str, data: bytes) -> LocalFile:
+        try:
+            async with aiofiles.open(path, mode="wb") as file:
+                await file.write(data)
+        except FileNotFoundError as error:
+            raise NotFoundException(
+                f"Failed to write file '{path}', directory does not exist!"
+            ) from error
+
+        return LocalFile(path, self)

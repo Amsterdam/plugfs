@@ -42,6 +42,9 @@ class Adapter(metaclass=ABCMeta):
     @abstractmethod
     async def get_file(self, path: str) -> File: ...
 
+    @abstractmethod
+    async def write(self, path: str, data: bytes) -> File: ...
+
 
 @final
 class Filesystem:
@@ -55,3 +58,6 @@ class Filesystem:
 
     async def get_file(self, path: str) -> File:
         return await self._adapter.get_file(path)
+
+    async def write(self, path: str, data: bytes) -> File:
+        return await self._adapter.write(path, data)
