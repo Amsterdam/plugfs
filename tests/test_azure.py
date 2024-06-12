@@ -1,4 +1,5 @@
 import os
+from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -8,7 +9,7 @@ from plugfs.azure import AzureStorageBlobsAdapter
 
 
 @pytest_asyncio.fixture
-async def container_client() -> ContainerClient:
+async def container_client() -> AsyncGenerator[ContainerClient, None]:
     client = ContainerClient.from_connection_string(
         f"DefaultEndpointsProtocol=http;AccountName={os.getenv("AZURE_ACCOUNT_NAME")};"
         f"AccountKey={os.getenv("AZURE_ACCOUNT_KEY")};"
@@ -16,30 +17,34 @@ async def container_client() -> ContainerClient:
         os.getenv("AZURE_CONTAINER", "default_container_name"),
     )
 
-    await client.delete_container()
-    await client.create_container()
+    async with client:
+        await client.delete_container()
+        await client.create_container()
 
-    blob_client = client.get_blob_client("1mb.bin")
+        blob_client = client.get_blob_client("1mb.bin")
 
-    with open(
-        os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "resources", "1mb.bin"
-        ),
-        "rb",
-    ) as file:
-        await blob_client.upload_blob(file)
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), "resources", "1mb.bin"
+            ),
+            "rb",
+        ) as file:
+            await blob_client.upload_blob(file)
 
-    blob_client = client.get_blob_client("directory/256kb.bin")
+        blob_client = client.get_blob_client("directory/256kb.bin")
 
-    with open(
-        os.path.join(
-            os.path.abspath(os.path.dirname(__file__)), "resources", "directory", "256kb.bin"
-        ),
-        "rb",
-    ) as file:
-        await blob_client.upload_blob(file)
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)),
+                "resources",
+                "directory",
+                "256kb.bin",
+            ),
+            "rb",
+        ) as file:
+            await blob_client.upload_blob(file)
 
-    return client
+        yield client
 
 
 @pytest.fixture
