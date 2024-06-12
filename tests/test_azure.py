@@ -16,6 +16,7 @@ async def container_client() -> ContainerClient:
         os.getenv("AZURE_CONTAINER", "default_container_name"),
     )
 
+    await client.delete_container()
     await client.create_container()
 
     blob_client = client.get_blob_client("1mb.bin")
@@ -23,6 +24,16 @@ async def container_client() -> ContainerClient:
     with open(
         os.path.join(
             os.path.abspath(os.path.dirname(__file__)), "resources", "1mb.bin"
+        ),
+        "rb",
+    ) as file:
+        await blob_client.upload_blob(file)
+
+    blob_client = client.get_blob_client("directory/256kb.bin")
+
+    with open(
+        os.path.join(
+            os.path.abspath(os.path.dirname(__file__)), "resources", "directory", "256kb.bin"
         ),
         "rb",
     ) as file:
