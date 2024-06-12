@@ -4,8 +4,10 @@ services:
     build:
       context: .
     environment:
+      AZURE_STORAGE_URL: http://azurite:10000
       AZURE_ACCOUNT_NAME: devstoreaccount1
       AZURE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_CONTAINER: "plugfscontainer"
     volumes:
       - ".:/opt/plugfs"
 
