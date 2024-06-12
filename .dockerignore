@@ -1,0 +1,6 @@
+.git
+.gitignore
+.coverage
+htmlcov
+start-dev.sh
+test.sh
