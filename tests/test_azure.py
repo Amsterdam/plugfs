@@ -5,7 +5,8 @@ import pytest
 import pytest_asyncio
 from azure.storage.blob.aio import ContainerClient
 
-from plugfs.azure import AzureStorageBlobsAdapter
+from plugfs.azure import AzureFile, AzureStorageBlobsAdapter
+from plugfs.filesystem import Directory, NotFoundException
 
 
 @pytest_asyncio.fixture
@@ -21,8 +22,7 @@ async def container_client() -> AsyncGenerator[ContainerClient, None]:
         await client.delete_container()
         await client.create_container()
 
-        blob_client = client.get_blob_client("1mb.bin")
-
+        blob_client = client.get_blob_client("/1mb.bin")
         with open(
             os.path.join(
                 os.path.abspath(os.path.dirname(__file__)), "resources", "1mb.bin"
@@ -31,8 +31,19 @@ async def container_client() -> AsyncGenerator[ContainerClient, None]:
         ) as file:
             await blob_client.upload_blob(file)
 
-        blob_client = client.get_blob_client("directory/256kb.bin")
+        blob_client = client.get_blob_client("/directory/256kb.bin")
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)),
+                "resources",
+                "directory",
+                "256kb.bin",
+            ),
+            "rb",
+        ) as file:
+            await blob_client.upload_blob(file)
 
+        blob_client = client.get_blob_client("/directory/subdirectory/nested_file")
         with open(
             os.path.join(
                 os.path.abspath(os.path.dirname(__file__)),
@@ -56,7 +67,52 @@ def azure_storage_blobs_adapter(
 
 class TestAzureStorageBlobsAdapter:
     @pytest.mark.asyncio
-    async def test_list(
+    async def test_list_root(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
         items = await azure_storage_blobs_adapter.list("/")
+
+        assert len(items) == 2
+
+        assert isinstance(items[0], AzureFile)
+        assert items[0].path == "/1mb.bin"
+
+        assert isinstance(items[1], Directory)
+        assert items[1].path == "/directory"
+
+    @pytest.mark.asyncio
+    async def test_list_directory(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        items = await azure_storage_blobs_adapter.list("/directory")
+
+        assert len(items) == 2
+
+        assert isinstance(items[0], AzureFile)
+        assert items[0].path == "/directory/256kb.bin"
+
+        assert isinstance(items[1], Directory)
+        assert items[1].path == "/directory/subdirectory"
+
+    @pytest.mark.asyncio
+    async def test_list_subdirectory(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        items = await azure_storage_blobs_adapter.list("/directory/subdirectory")
+
+        assert len(items) == 1
+
+        assert isinstance(items[0], AzureFile)
+        assert items[0].path == "/directory/subdirectory/nested_file"
+
+    @pytest.mark.asyncio
+    async def test_list_non_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.list("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to retrieve directory listing for '/this/path/does/not/exist'!"
+        )
