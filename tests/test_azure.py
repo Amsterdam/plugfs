@@ -3,10 +3,11 @@ from typing import AsyncGenerator
 
 import pytest
 import pytest_asyncio
+from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
 
 from plugfs.azure import AzureFile, AzureStorageBlobsAdapter
-from plugfs.filesystem import Directory, NotFoundException
+from plugfs.filesystem import Directory
 
 
 @pytest_asyncio.fixture
@@ -19,7 +20,11 @@ async def container_client() -> AsyncGenerator[ContainerClient, None]:
     )
 
     async with client:
-        await client.delete_container()
+        try:
+            await client.delete_container()
+        except ResourceNotFoundError:
+            """No need to delete the container if it does not exist."""
+
         await client.create_container()
 
         blob_client = client.get_blob_client("/1mb.bin")
@@ -109,10 +114,5 @@ class TestAzureStorageBlobsAdapter:
     async def test_list_non_existing(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
-        with pytest.raises(NotFoundException) as exception_info:
-            await azure_storage_blobs_adapter.list("/this/path/does/not/exist")
-
-        assert (
-            str(exception_info.value)
-            == "Failed to retrieve directory listing for '/this/path/does/not/exist'!"
-        )
+        items = await azure_storage_blobs_adapter.list("/this/path/does/not/exist")
+        assert len(items) == 0
