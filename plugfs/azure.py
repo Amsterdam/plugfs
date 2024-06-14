@@ -22,7 +22,7 @@ class AzureFile(File):
 
     @property
     async def size(self) -> int:
-        raise NotImplementedError()
+        return await self._adapter.get_size(self._path)
 
     async def read(self) -> bytes:
         raise NotImplementedError()
@@ -66,3 +66,12 @@ class AzureStorageBlobsAdapter(Adapter):
 
     async def write(self, path: str, data: bytes) -> File:
         raise NotImplementedError()
+
+    async def get_size(self, path: str) -> int:
+        blob_client = self._client.get_blob_client(path)
+        try:
+            stream = await blob_client.download_blob()
+        except ResourceNotFoundError as error:
+            raise NotFoundException(f"Failed to find file '{path}'!") from error
+
+        return stream.size

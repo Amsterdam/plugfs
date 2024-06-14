@@ -81,6 +81,7 @@ class TestAzureStorageBlobsAdapter:
 
         assert isinstance(items[0], AzureFile)
         assert items[0].path == "/1mb.bin"
+        assert await items[0].size == 1048576
 
         assert isinstance(items[1], Directory)
         assert items[1].path == "/directory"
