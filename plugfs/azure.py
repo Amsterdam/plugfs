@@ -1,5 +1,5 @@
 import os
-from typing import cast
+from typing import cast, final
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
@@ -14,6 +14,7 @@ from plugfs.filesystem import (
 )
 
 
+@final
 class AzureFile(File):
     _adapter: "AzureStorageBlobsAdapter"
 
@@ -29,6 +30,7 @@ class AzureFile(File):
         return await self._adapter.read(self._path)
 
 
+@final
 class AzureStorageBlobsAdapter(Adapter):
     _client: ContainerClient
 

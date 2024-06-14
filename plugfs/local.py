@@ -1,3 +1,5 @@
+from typing import final
+
 import aiofiles
 from aiofiles.os import listdir
 from aiofiles.ospath import exists, getsize, isdir, isfile
@@ -12,6 +14,7 @@ from plugfs.filesystem import (
 )
 
 
+@final
 class LocalFile(File):
     _adapter: "LocalAdapter"
 
@@ -30,6 +33,7 @@ class LocalFile(File):
         await self._adapter.write(self._path, data)
 
 
+@final
 class LocalAdapter(Adapter):
     async def list(self, path: str) -> DirectoryListing:
         try:
