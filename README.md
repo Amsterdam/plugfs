@@ -63,3 +63,12 @@ classDiagram
     AzureStorageBlobsAdapter --|> Adapter
     AzureFile --|> File
 ```
+
+The idea behind this library is to provide an abstraction layer for your code. That way it doesn't matter what storage
+backend is used.
+
+We do this by setting up an adapter of choice and providing it to the `Filesystem` class.
+In turn, we use the `Filesystem` object in our code to perform operations like reading and writing files.
+
+If for whatever reason at some point we decide to use a different storage backend, all we would need to do is provide
+the `Filesystem` with a different adapter.
