@@ -157,3 +157,19 @@ class TestAzureStorageBlobsAdapter:
             str(exception_info.value)
             == "Failed to find file '/this/path/does/not/exist'!"
         )
+
+    @pytest.mark.asyncio
+    async def test_write_new(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file = await azure_storage_blobs_adapter.write("/new_file", b"Hello world!")
+
+        assert await file.size == 12
+
+    @pytest.mark.asyncio
+    async def test_write_overwrite_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file = await azure_storage_blobs_adapter.write("/1mb.bin", b"Hello world!")
+
+        assert await file.size == 12

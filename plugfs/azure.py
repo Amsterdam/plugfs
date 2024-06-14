@@ -70,7 +70,11 @@ class AzureStorageBlobsAdapter(Adapter):
         raise NotFoundException(f"Failed to find file '{path}'!")
 
     async def write(self, path: str, data: bytes) -> File:
-        raise NotImplementedError()
+        blob_client = self._client.get_blob_client(path)
+
+        await blob_client.upload_blob(data, overwrite=True)
+
+        return AzureFile(path, self)
 
     async def get_size(self, path: str) -> int:
         blob_client = self._client.get_blob_client(path)
