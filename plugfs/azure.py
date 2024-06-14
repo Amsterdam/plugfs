@@ -25,7 +25,7 @@ class AzureFile(File):
         return await self._adapter.get_size(self._path)
 
     async def read(self) -> bytes:
-        raise NotImplementedError()
+        return await self._adapter.read(self._path)
 
 
 class AzureStorageBlobsAdapter(Adapter):
