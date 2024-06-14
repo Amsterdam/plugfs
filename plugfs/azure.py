@@ -1,4 +1,5 @@
 import os
+from typing import cast
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
@@ -62,7 +63,11 @@ class AzureStorageBlobsAdapter(Adapter):
         return await stream.readall()
 
     async def get_file(self, path: str) -> File:
-        raise NotImplementedError()
+        blob_client = self._client.get_blob_client(path)
+        if await blob_client.exists():
+            return AzureFile(path, self)
+
+        raise NotFoundException(f"Failed to find file '{path}'!")
 
     async def write(self, path: str, data: bytes) -> File:
         raise NotImplementedError()
@@ -74,4 +79,6 @@ class AzureStorageBlobsAdapter(Adapter):
         except ResourceNotFoundError as error:
             raise NotFoundException(f"Failed to find file '{path}'!") from error
 
-        return stream.size
+        size = cast(int, stream.size)
+
+        return size

@@ -137,3 +137,23 @@ class TestAzureStorageBlobsAdapter:
             str(exception_info.value)
             == "Failed to find file '/this/path/does/not/exist'!"
         )
+
+    @pytest.mark.asyncio
+    async def test_get_file(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file = await azure_storage_blobs_adapter.get_file("/1mb.bin")
+
+        assert isinstance(file, AzureFile)
+
+    @pytest.mark.asyncio
+    async def test_get_file_non_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.get_file("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
+        )
