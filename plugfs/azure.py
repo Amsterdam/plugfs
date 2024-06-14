@@ -1,5 +1,6 @@
 import os
 
+from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
 
 from plugfs.filesystem import (
@@ -7,6 +8,7 @@ from plugfs.filesystem import (
     Directory,
     DirectoryListing,
     File,
+    NotFoundException,
     _FilesystemItem,
 )
 
@@ -51,7 +53,13 @@ class AzureStorageBlobsAdapter(Adapter):
         return items
 
     async def read(self, path: str) -> bytes:
-        raise NotImplementedError()
+        blob_client = self._client.get_blob_client(path)
+        try:
+            stream = await blob_client.download_blob()
+        except ResourceNotFoundError as error:
+            raise NotFoundException(f"Failed to find file '{path}'!") from error
+
+        return await stream.readall()
 
     async def get_file(self, path: str) -> File:
         raise NotImplementedError()

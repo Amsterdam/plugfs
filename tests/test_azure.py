@@ -7,7 +7,7 @@ from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
 
 from plugfs.azure import AzureFile, AzureStorageBlobsAdapter
-from plugfs.filesystem import Directory
+from plugfs.filesystem import Directory, NotFoundException
 
 
 @pytest_asyncio.fixture
@@ -116,3 +116,23 @@ class TestAzureStorageBlobsAdapter:
     ) -> None:
         items = await azure_storage_blobs_adapter.list("/this/path/does/not/exist")
         assert len(items) == 0
+
+    @pytest.mark.asyncio
+    async def test_read(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        data = await azure_storage_blobs_adapter.read("/1mb.bin")
+
+        assert len(data) == 1048576
+
+    @pytest.mark.asyncio
+    async def test_read_non_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.read("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
+        )
