@@ -1,6 +1,6 @@
 {
   "target": {
-    "meldingen-core": {
+    "plugfs": {
       "cache-from": [
         "type=registry,ref=ghcr.io/amsterdam/plugfs:cache"
       ],

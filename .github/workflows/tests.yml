@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build containers
-        run: docker buildx bake --file docker-compose.yml --file docker-compose.cache.json plugfs
+        run: docker buildx bake --file docker-compose.yml --file docker-compose.cache.json
 
       - name: Test
         run: docker-compose run --rm plugfs pytest --cov --cov-fail-under=100 -v
