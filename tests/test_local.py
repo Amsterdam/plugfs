@@ -16,16 +16,21 @@ class TestLocalAdapter:
 
         assert len(items) == 2
 
-        assert isinstance(items[0], LocalFile)
-        assert items[0].path == path.join(
-            path.abspath(path.dirname(__file__)), "resources", "1mb.bin"
-        )
-        assert await items[0].size == 1048576
-
-        assert isinstance(items[1], Directory)
-        assert items[1].path == path.join(
-            path.abspath(path.dirname(__file__)), "resources", "directory"
-        )
+        file_found = False
+        directory_found = False
+        for item in items:
+            if isinstance(item, LocalFile):
+                assert item.path == path.join(
+                    path.abspath(path.dirname(__file__)), "resources", "1mb.bin"
+                )
+                assert await item.size == 1048576
+                file_found = True
+            elif isinstance(item, Directory):
+                assert item.path == path.join(
+                    path.abspath(path.dirname(__file__)), "resources", "directory"
+                )
+                directory_found = True
+        assert file_found is True and directory_found is True
 
     @pytest.mark.asyncio
     async def test_list_non_existing(self) -> None:
