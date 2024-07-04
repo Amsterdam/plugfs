@@ -10,6 +10,8 @@ services:
       AZURE_CONTAINER: "plugfscontainer"
     volumes:
       - ".:/opt/plugfs"
+    depends_on:
+      - azurite
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite:latest

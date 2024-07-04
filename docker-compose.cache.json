@@ -1,0 +1,15 @@
+{
+  "target": {
+    "plugfs": {
+      "cache-from": [
+        "type=registry,ref=ghcr.io/amsterdam/plugfs:cache"
+      ],
+      "cache-to": [
+        "type=registry,ref=ghcr.io/amsterdam/plugfs:cache"
+      ],
+      "output": [
+        "type=docker"
+      ]
+    }
+  }
+}
