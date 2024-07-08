@@ -1,7 +1,7 @@
 from typing import final
 
 import aiofiles
-from aiofiles.os import listdir
+from aiofiles.os import listdir, makedirs
 from aiofiles.ospath import exists, getsize, isdir, isfile
 
 from plugfs.filesystem import (
@@ -78,3 +78,6 @@ class LocalAdapter(Adapter):
             ) from error
 
         return LocalFile(path, self)
+
+    async def makedirs(self, path: str) -> None:
+        await makedirs(path)
