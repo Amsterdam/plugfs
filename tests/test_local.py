@@ -120,3 +120,14 @@ class TestLocalAdapter:
             str(exception_info.value)
             == "Failed to write file '/this/path/does/not/exist', directory does not exist!"
         )
+
+    @pytest.mark.asyncio
+    async def test_makedirs(self) -> None:
+        adapter = LocalAdapter()
+        dir_path = path.join("/tmp", str(uuid4()))
+
+        await adapter.makedirs(dir_path)
+
+        assert path.exists(dir_path)
+
+        os.rmdir(dir_path)

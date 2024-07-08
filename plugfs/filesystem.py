@@ -45,6 +45,9 @@ class Adapter(metaclass=ABCMeta):
     @abstractmethod
     async def write(self, path: str, data: bytes) -> File: ...
 
+    @abstractmethod
+    async def makedirs(self, path: str) -> None: ...
+
 
 @final
 class Filesystem:
@@ -61,3 +64,6 @@ class Filesystem:
 
     async def write(self, path: str, data: bytes) -> File:
         return await self._adapter.write(path, data)
+
+    async def makedirs(self, path: str) -> None:
+        return await self._adapter.makedirs(path)

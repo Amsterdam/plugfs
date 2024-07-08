@@ -95,3 +95,7 @@ class AzureStorageBlobsAdapter(Adapter):
             size = cast(int, stream.size)
 
         return size
+
+    async def makedirs(self, path: str) -> None:
+        """Azure storage does not really have directories, so we don't need to do anything here.
+        The path will just be part of the blob name."""
