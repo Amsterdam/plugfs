@@ -24,4 +24,4 @@ jobs:
         run: docker buildx bake --file docker-compose.yml --file docker-compose.cache.json
 
       - name: Test
-        run: docker-compose run --rm plugfs pytest --cov --cov-fail-under=95 -v
+        run: docker compose run --rm plugfs pytest --cov --cov-fail-under=95 -v
