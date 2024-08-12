@@ -1,5 +1,5 @@
 import os
-from typing import cast, final
+from typing import final
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
@@ -92,9 +92,7 @@ class AzureStorageBlobsAdapter(Adapter):
             except ResourceNotFoundError as error:
                 raise NotFoundException(f"Failed to find file '{path}'!") from error
 
-            size = cast(int, stream.size)
-
-        return size
+        return stream.size
 
     async def makedirs(self, path: str) -> None:
         """Azure storage does not really have directories, so we don't need to do anything here.
