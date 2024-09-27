@@ -9,7 +9,7 @@ from plugfs.local import LocalAdapter, LocalFile
 
 
 class TestLocalAdapter:
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list(self) -> None:
         adapter = LocalAdapter()
         items = await adapter.list(path.join(path.dirname(__file__), "resources"))
@@ -32,7 +32,7 @@ class TestLocalAdapter:
                 directory_found = True
         assert file_found is True and directory_found is True
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list_non_existing(self) -> None:
         adapter = LocalAdapter()
         with pytest.raises(NotFoundException) as exception_info:
@@ -43,7 +43,7 @@ class TestLocalAdapter:
             == "Failed to retrieve directory listing for '/this/path/does/not/exist'!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_read(self) -> None:
         adapter = LocalAdapter()
 
@@ -53,7 +53,7 @@ class TestLocalAdapter:
 
         assert len(data) == 1048576
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_read_non_existing(self) -> None:
         adapter = LocalAdapter()
 
@@ -65,7 +65,7 @@ class TestLocalAdapter:
             == "Failed to find file '/this/path/does/not/exist'!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_file(self) -> None:
         adapter = LocalAdapter()
 
@@ -75,7 +75,7 @@ class TestLocalAdapter:
 
         assert isinstance(file, LocalFile)
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_file_non_existing(self) -> None:
         adapter = LocalAdapter()
 
@@ -87,7 +87,7 @@ class TestLocalAdapter:
             == "Failed to find file '/this/path/does/not/exist'!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_write_new(self) -> None:
         adapter = LocalAdapter()
         filepath = path.join("/tmp", str(uuid4()))
@@ -97,7 +97,7 @@ class TestLocalAdapter:
 
         os.remove(filepath)
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_write_overwrite_existing(self) -> None:
         adapter = LocalAdapter()
         filepath = path.join("/tmp", str(uuid4()))
@@ -109,7 +109,7 @@ class TestLocalAdapter:
 
         os.remove(filepath)
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_write_non_existing_directory(self) -> None:
         adapter = LocalAdapter()
 
@@ -121,7 +121,7 @@ class TestLocalAdapter:
             == "Failed to write file '/this/path/does/not/exist', directory does not exist!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_makedirs(self) -> None:
         adapter = LocalAdapter()
         dir_path = path.join("/tmp", str(uuid4()))
