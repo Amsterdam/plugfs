@@ -2,7 +2,6 @@ import os
 from typing import AsyncGenerator
 
 import pytest
-import pytest_asyncio
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
 
@@ -10,7 +9,7 @@ from plugfs.azure import AzureFile, AzureStorageBlobsAdapter
 from plugfs.filesystem import Directory, NotFoundException
 
 
-@pytest_asyncio.fixture
+@pytest.fixture
 async def container_client() -> AsyncGenerator[ContainerClient, None]:
     client = ContainerClient.from_connection_string(
         f"DefaultEndpointsProtocol=http;AccountName={os.getenv("AZURE_ACCOUNT_NAME")};"
@@ -71,7 +70,7 @@ def azure_storage_blobs_adapter(
 
 
 class TestAzureStorageBlobsAdapter:
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list_root(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -86,7 +85,7 @@ class TestAzureStorageBlobsAdapter:
         assert isinstance(items[1], Directory)
         assert items[1].path == "/directory"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list_directory(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -100,7 +99,7 @@ class TestAzureStorageBlobsAdapter:
         assert isinstance(items[1], Directory)
         assert items[1].path == "/directory/subdirectory"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list_subdirectory(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -111,14 +110,14 @@ class TestAzureStorageBlobsAdapter:
         assert isinstance(items[0], AzureFile)
         assert items[0].path == "/directory/subdirectory/nested_file"
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_list_non_existing(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
         items = await azure_storage_blobs_adapter.list("/this/path/does/not/exist")
         assert len(items) == 0
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_read(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -126,7 +125,7 @@ class TestAzureStorageBlobsAdapter:
 
         assert len(data) == 1048576
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_read_non_existing(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -138,7 +137,7 @@ class TestAzureStorageBlobsAdapter:
             == "Failed to find file '/this/path/does/not/exist'!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_file(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -146,7 +145,7 @@ class TestAzureStorageBlobsAdapter:
 
         assert isinstance(file, AzureFile)
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_get_file_non_existing(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -158,7 +157,7 @@ class TestAzureStorageBlobsAdapter:
             == "Failed to find file '/this/path/does/not/exist'!"
         )
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_write_new(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
@@ -166,7 +165,7 @@ class TestAzureStorageBlobsAdapter:
 
         assert await file.size == 12
 
-    @pytest.mark.asyncio
+    @pytest.mark.anyio
     async def test_write_overwrite_existing(
         self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
     ) -> None:
