@@ -26,3 +26,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.mypy]
 strict = true
+
+[tool.isort]
+profile = "black"
+overwrite_in_place = true
