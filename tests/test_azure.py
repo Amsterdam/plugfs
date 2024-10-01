@@ -166,6 +166,7 @@ class TestAzureStorageBlobsAdapter:
 
             data += chunk
 
+        assert data is not None
         assert len(data) == 10485760
         assert count == 3
 
