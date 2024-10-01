@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from collections.abc import Sequence
-from typing import final
+from typing import AsyncIterator, final
 
 
 class _FilesystemItem:
@@ -28,6 +28,9 @@ class File(_FilesystemItem, metaclass=ABCMeta):
     @abstractmethod
     async def read(self) -> bytes: ...
 
+    @abstractmethod
+    async def get_iterator(self) -> AsyncIterator[bytes]: ...
+
 
 class NotFoundException(Exception): ...
 
@@ -38,6 +41,9 @@ class Adapter(metaclass=ABCMeta):
 
     @abstractmethod
     async def read(self, path: str) -> bytes: ...
+
+    @abstractmethod
+    async def get_iterator(self, path: str) -> AsyncIterator[bytes]: ...
 
     @abstractmethod
     async def get_file(self, path: str) -> File: ...
