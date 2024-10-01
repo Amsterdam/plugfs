@@ -66,16 +66,15 @@ class LocalAdapter(Adapter):
         return data
 
     async def get_iterator(self, path: str) -> AsyncIterator[bytes]:
-        async def iterate() -> AsyncIterator[bytes]:
-            try:
-                async with aiofiles.open(path, mode="rb") as file:
-                    chunk = await file.read(1024 * 1024)  # 1MB chunks
-                    while chunk:
-                        yield chunk
-                        chunk = await file.read(1024 * 1024)
+        if not await exists(path) or not await isfile(path):
+            raise NotFoundException(f"Failed to find file '{path}'!")
 
-            except FileNotFoundError as error:
-                raise NotFoundException(f"Failed to find file '{path}'!") from error
+        async def iterate() -> AsyncIterator[bytes]:
+            async with aiofiles.open(path, mode="rb") as file:
+                chunk = await file.read(1024 * 1024)  # 1MB chunks
+                while chunk:
+                    yield chunk
+                    chunk = await file.read(1024 * 1024)
 
         return iterate()
 

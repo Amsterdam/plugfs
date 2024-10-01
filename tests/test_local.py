@@ -94,8 +94,8 @@ class TestLocalAdapter:
             await adapter.get_iterator("/this/path/does/not/exist")
 
         assert (
-                str(exception_info.value)
-                == "Failed to find file '/this/path/does/not/exist'!"
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
         )
 
     @pytest.mark.anyio
