@@ -71,10 +71,8 @@ class LocalAdapter(Adapter):
 
         async def iterate() -> AsyncIterator[bytes]:
             async with aiofiles.open(path, mode="rb") as file:
-                chunk = await file.read(1024 * 1024)  # 1MB chunks
-                while chunk:
+                while chunk := await file.read(1024 * 1024):  # 1MB chunks
                     yield chunk
-                    chunk = await file.read(1024 * 1024)
 
         return iterate()
 
