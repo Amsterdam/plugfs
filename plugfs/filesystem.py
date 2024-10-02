@@ -52,6 +52,11 @@ class Adapter(metaclass=ABCMeta):
     async def write(self, path: str, data: bytes) -> File: ...
 
     @abstractmethod
+    async def write_iterator(
+        self, path: str, iterator: AsyncIterator[bytes]
+    ) -> File: ...
+
+    @abstractmethod
     async def makedirs(self, path: str) -> None: ...
 
 
