@@ -35,6 +35,15 @@ async def container_client() -> AsyncGenerator[ContainerClient, None]:
         ) as file:
             await blob_client.upload_blob(file)
 
+        blob_client = client.get_blob_client("/10mb.bin")
+        with open(
+            os.path.join(
+                os.path.abspath(os.path.dirname(__file__)), "resources", "10mb.bin"
+            ),
+            "rb",
+        ) as file:
+            await blob_client.upload_blob(file)
+
         blob_client = client.get_blob_client("/directory/256kb.bin")
         with open(
             os.path.join(
@@ -76,14 +85,18 @@ class TestAzureStorageBlobsAdapter:
     ) -> None:
         items = await azure_storage_blobs_adapter.list("/")
 
-        assert len(items) == 2
+        assert len(items) == 3
 
         assert isinstance(items[0], AzureFile)
-        assert items[0].path == "/1mb.bin"
-        assert await items[0].size == 1048576
+        assert items[0].path == "/10mb.bin"
+        assert await items[0].size == 10485760
 
-        assert isinstance(items[1], Directory)
-        assert items[1].path == "/directory"
+        assert isinstance(items[1], AzureFile)
+        assert items[1].path == "/1mb.bin"
+        assert await items[1].size == 1048576
+
+        assert isinstance(items[2], Directory)
+        assert items[2].path == "/directory"
 
     @pytest.mark.anyio
     async def test_list_directory(
@@ -131,6 +144,38 @@ class TestAzureStorageBlobsAdapter:
     ) -> None:
         with pytest.raises(NotFoundException) as exception_info:
             await azure_storage_blobs_adapter.read("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
+        )
+
+    @pytest.mark.anyio
+    async def test_get_iterator(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        iterator = await azure_storage_blobs_adapter.get_iterator("/10mb.bin")
+
+        data = None
+        count = 0
+        async for chunk in iterator:
+            count += 1
+            if data is None:
+                data = chunk
+                continue
+
+            data += chunk
+
+        assert data is not None
+        assert len(data) == 10485760
+        assert count == 3
+
+    @pytest.mark.anyio
+    async def test_get_iterator_non_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.get_iterator("/this/path/does/not/exist")
 
         assert (
             str(exception_info.value)

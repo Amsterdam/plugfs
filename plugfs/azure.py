@@ -1,5 +1,5 @@
 import os
-from typing import final
+from typing import AsyncIterator, final
 
 from azure.core.exceptions import ResourceNotFoundError
 from azure.storage.blob.aio import ContainerClient
@@ -28,6 +28,9 @@ class AzureFile(File):
 
     async def read(self) -> bytes:
         return await self._adapter.read(self._path)
+
+    async def get_iterator(self) -> AsyncIterator[bytes]:
+        return await self._adapter.get_iterator(self._path)
 
 
 @final
@@ -65,6 +68,17 @@ class AzureStorageBlobsAdapter(Adapter):
                 raise NotFoundException(f"Failed to find file '{path}'!") from error
 
             return await stream.readall()
+
+    async def get_iterator(self, path: str) -> AsyncIterator[bytes]:
+        blob_client = self._client.get_blob_client(path)
+
+        async with blob_client:
+            try:
+                stream = await blob_client.download_blob()
+            except ResourceNotFoundError as error:
+                raise NotFoundException(f"Failed to find file '{path}'!") from error
+
+            return stream.chunks()
 
     async def get_file(self, path: str) -> File:
         blob_client = self._client.get_blob_client(path)

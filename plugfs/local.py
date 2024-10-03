@@ -1,4 +1,4 @@
-from typing import final
+from typing import AsyncIterator, final
 
 import aiofiles
 from aiofiles.os import listdir, makedirs
@@ -28,6 +28,9 @@ class LocalFile(File):
 
     async def read(self) -> bytes:
         return await self._adapter.read(self._path)
+
+    async def get_iterator(self) -> AsyncIterator[bytes]:
+        return await self._adapter.get_iterator(self._path)
 
     async def write(self, data: bytes) -> None:
         await self._adapter.write(self._path, data)
@@ -61,6 +64,17 @@ class LocalAdapter(Adapter):
             raise NotFoundException(f"Failed to find file '{path}'!") from error
 
         return data
+
+    async def get_iterator(self, path: str) -> AsyncIterator[bytes]:
+        if not await exists(path) or not await isfile(path):
+            raise NotFoundException(f"Failed to find file '{path}'!")
+
+        async def iterate() -> AsyncIterator[bytes]:
+            async with aiofiles.open(path, mode="rb") as file:
+                while chunk := await file.read(1024 * 1024):  # 1MB chunks
+                    yield chunk
+
+        return iterate()
 
     async def get_file(self, path: str) -> LocalFile:
         if await exists(path) and await isfile(path):

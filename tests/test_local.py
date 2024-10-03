@@ -14,23 +14,34 @@ class TestLocalAdapter:
         adapter = LocalAdapter()
         items = await adapter.list(path.join(path.dirname(__file__), "resources"))
 
-        assert len(items) == 2
+        assert len(items) == 3
 
-        file_found = False
+        file_found_1mb = False
+        file_found_10mb = False
         directory_found = False
         for item in items:
             if isinstance(item, LocalFile):
-                assert item.path == path.join(
+                if item.path == path.join(
                     path.abspath(path.dirname(__file__)), "resources", "1mb.bin"
-                )
-                assert await item.size == 1048576
-                file_found = True
+                ):
+                    assert await item.size == 1048576
+                    file_found_1mb = True
+                elif item.path == path.join(
+                    path.abspath(path.dirname(__file__)), "resources", "10mb.bin"
+                ):
+                    assert await item.size == 10485760
+                    file_found_10mb = True
             elif isinstance(item, Directory):
                 assert item.path == path.join(
                     path.abspath(path.dirname(__file__)), "resources", "directory"
                 )
                 directory_found = True
-        assert file_found is True and directory_found is True
+
+        assert (
+            file_found_1mb is True
+            and file_found_10mb is True
+            and directory_found is True
+        )
 
     @pytest.mark.anyio
     async def test_list_non_existing(self) -> None:
@@ -59,6 +70,39 @@ class TestLocalAdapter:
 
         with pytest.raises(NotFoundException) as exception_info:
             await adapter.read("/this/path/does/not/exist")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to find file '/this/path/does/not/exist'!"
+        )
+
+    @pytest.mark.anyio
+    async def test_get_iterator(self) -> None:
+        adapter = LocalAdapter()
+        iterator = await adapter.get_iterator(
+            path.join(path.abspath(path.dirname(__file__)), "resources", "10mb.bin")
+        )
+
+        data = None
+        count = 0
+        async for chunk in iterator:
+            count += 1
+            if data is None:
+                data = chunk
+                continue
+
+            data += chunk
+
+        assert data is not None
+        assert len(data) == 10485760
+        assert count == 10
+
+    @pytest.mark.anyio
+    async def test_get_iterator_non_existing(self) -> None:
+        adapter = LocalAdapter()
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await adapter.get_iterator("/this/path/does/not/exist")
 
         assert (
             str(exception_info.value)
