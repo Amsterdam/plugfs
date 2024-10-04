@@ -1,5 +1,6 @@
 import os
 from os import path
+from typing import AsyncIterator
 from uuid import uuid4
 
 import pytest
@@ -159,6 +160,56 @@ class TestLocalAdapter:
 
         with pytest.raises(NotFoundException) as exception_info:
             await adapter.write("/this/path/does/not/exist", b"Hello world!")
+
+        assert (
+            str(exception_info.value)
+            == "Failed to write file '/this/path/does/not/exist', directory does not exist!"
+        )
+
+    async def iterator(self) -> AsyncIterator[bytes]:
+        for chunk in [b"Hello", b" world", b"!"]:
+            yield chunk
+
+    @pytest.mark.anyio
+    async def test_write_iterator_new(self) -> None:
+        adapter = LocalAdapter()
+
+        filepath = path.join("/tmp", str(uuid4()))
+
+        local_file = await adapter.write_iterator(filepath, self.iterator())
+
+        assert await local_file.size == 12
+
+        with open(filepath, "rb") as file:
+            data = file.read()
+
+        assert data == b"Hello world!"
+
+        os.remove(filepath)
+
+    @pytest.mark.anyio
+    async def test_write_iterator_overwrite_existing(self) -> None:
+        adapter = LocalAdapter()
+        filepath = path.join("/tmp", str(uuid4()))
+        with open(filepath, "wb") as file:
+            file.write(b"Hello!")
+
+        local_file = await adapter.write_iterator(filepath, self.iterator())
+        assert await local_file.size == 12
+
+        with open(filepath, "rb") as file:
+            data = file.read()
+
+        assert data == b"Hello world!"
+
+        os.remove(filepath)
+
+    @pytest.mark.anyio
+    async def test_write_iterator_non_existing_directory(self) -> None:
+        adapter = LocalAdapter()
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await adapter.write_iterator("/this/path/does/not/exist", self.iterator())
 
         assert (
             str(exception_info.value)

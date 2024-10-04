@@ -89,13 +89,13 @@ class AzureStorageBlobsAdapter(Adapter):
 
         raise NotFoundException(f"Failed to find file '{path}'!")
 
-    async def write(self, path: str, data: bytes) -> File:
-        blob_client = self._client.get_blob_client(path)
+    async def write(self, path: str, data: bytes) -> AzureFile:
+        return await self._write(path, data)
 
-        async with blob_client:
-            await blob_client.upload_blob(data, overwrite=True)
-
-        return AzureFile(path, self)
+    async def write_iterator(
+        self, path: str, iterator: AsyncIterator[bytes]
+    ) -> AzureFile:
+        return await self._write(path, iterator)
 
     async def get_size(self, path: str) -> int:
         blob_client = self._client.get_blob_client(path)
@@ -111,3 +111,11 @@ class AzureStorageBlobsAdapter(Adapter):
     async def makedirs(self, path: str) -> None:
         """Azure storage does not really have directories, so we don't need to do anything here.
         The path will just be part of the blob name."""
+
+    async def _write(self, path: str, data: bytes | AsyncIterator[bytes]) -> AzureFile:
+        blob_client = self._client.get_blob_client(path)
+
+        async with blob_client:
+            await blob_client.upload_blob(data, overwrite=True)
+
+        return AzureFile(path, self)

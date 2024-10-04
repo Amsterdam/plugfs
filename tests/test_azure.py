@@ -1,5 +1,5 @@
 import os
-from typing import AsyncGenerator
+from typing import AsyncGenerator, AsyncIterator
 
 import pytest
 from azure.core.exceptions import ResourceNotFoundError
@@ -217,3 +217,27 @@ class TestAzureStorageBlobsAdapter:
         file = await azure_storage_blobs_adapter.write("/1mb.bin", b"Hello world!")
 
         assert await file.size == 12
+
+    @pytest.mark.anyio
+    async def test_write_iterator_new(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file = await azure_storage_blobs_adapter.write_iterator(
+            "/new_iterator_file", self._iterator()
+        )
+
+        assert await file.size == 12
+
+    @pytest.mark.anyio
+    async def test_write_overwrite_iterator_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file = await azure_storage_blobs_adapter.write_iterator(
+            "/1mb.bin", self._iterator()
+        )
+
+        assert await file.size == 12
+
+    async def _iterator(self) -> AsyncIterator[bytes]:
+        for chunk in [b"Hello ", b"world", b"!"]:
+            yield chunk

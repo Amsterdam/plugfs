@@ -93,5 +93,19 @@ class LocalAdapter(Adapter):
 
         return LocalFile(path, self)
 
+    async def write_iterator(
+        self, path: str, iterator: AsyncIterator[bytes]
+    ) -> LocalFile:
+        try:
+            async with aiofiles.open(path, mode="wb") as file:
+                async for chunk in iterator:
+                    await file.write(chunk)
+        except FileNotFoundError as error:
+            raise NotFoundException(
+                f"Failed to write file '{path}', directory does not exist!"
+            ) from error
+
+        return LocalFile(path, self)
+
     async def makedirs(self, path: str) -> None:
         await makedirs(path)

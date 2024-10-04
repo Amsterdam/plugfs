@@ -52,6 +52,11 @@ class Adapter(metaclass=ABCMeta):
     async def write(self, path: str, data: bytes) -> File: ...
 
     @abstractmethod
+    async def write_iterator(
+        self, path: str, iterator: AsyncIterator[bytes]
+    ) -> File: ...
+
+    @abstractmethod
     async def makedirs(self, path: str) -> None: ...
 
 
@@ -70,6 +75,9 @@ class Filesystem:
 
     async def write(self, path: str, data: bytes) -> File:
         return await self._adapter.write(path, data)
+
+    async def write_iterator(self, path: str, iterator: AsyncIterator[bytes]) -> File:
+        return await self._adapter.write_iterator(path, iterator)
 
     async def makedirs(self, path: str) -> None:
         return await self._adapter.makedirs(path)
