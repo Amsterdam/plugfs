@@ -31,6 +31,9 @@ class File(_FilesystemItem, metaclass=ABCMeta):
     @abstractmethod
     async def get_iterator(self) -> AsyncIterator[bytes]: ...
 
+    @abstractmethod
+    async def delete(self) -> None: ...
+
 
 class NotFoundException(Exception): ...
 
@@ -59,6 +62,9 @@ class Adapter(metaclass=ABCMeta):
     @abstractmethod
     async def makedirs(self, path: str) -> None: ...
 
+    @abstractmethod
+    async def delete(self, path: str) -> None: ...
+
 
 @final
 class Filesystem:
@@ -80,4 +86,7 @@ class Filesystem:
         return await self._adapter.write_iterator(path, iterator)
 
     async def makedirs(self, path: str) -> None:
-        return await self._adapter.makedirs(path)
+        await self._adapter.makedirs(path)
+
+    async def delete(self, path: str) -> None:
+        await self._adapter.delete(path)
