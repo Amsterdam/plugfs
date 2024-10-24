@@ -241,3 +241,29 @@ class TestAzureStorageBlobsAdapter:
     async def _iterator(self) -> AsyncIterator[bytes]:
         for chunk in [b"Hello ", b"world", b"!"]:
             yield chunk
+
+    @pytest.mark.anyio
+    async def test_delete_non_existing(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file_path = "/this/path/does/not/exist"
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.delete(file_path)
+
+        assert (
+            str(exception_info.value)
+            == f"Failed to delete file '{file_path}', file does not exist!"
+        )
+
+    @pytest.mark.anyio
+    async def test_delete(
+        self, azure_storage_blobs_adapter: AzureStorageBlobsAdapter
+    ) -> None:
+        file_path = "/1mb.bin"
+        await azure_storage_blobs_adapter.delete(file_path)
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await azure_storage_blobs_adapter.get_file(file_path)
+
+        assert str(exception_info.value) == f"Failed to find file '{file_path}'!"
