@@ -1,7 +1,7 @@
 from typing import AsyncIterator, final
 
 import aiofiles
-from aiofiles.os import listdir, makedirs
+from aiofiles.os import listdir, makedirs, remove
 from aiofiles.ospath import exists, getsize, isdir, isfile
 
 from plugfs.filesystem import (
@@ -34,6 +34,9 @@ class LocalFile(File):
 
     async def write(self, data: bytes) -> None:
         await self._adapter.write(self._path, data)
+
+    async def delete(self) -> None:
+        await self._adapter.delete(self._path)
 
 
 @final
@@ -109,3 +112,9 @@ class LocalAdapter(Adapter):
 
     async def makedirs(self, path: str) -> None:
         await makedirs(path)
+
+    async def delete(self, path: str) -> None:
+        try:
+            await remove(path)
+        except FileNotFoundError as error:
+            raise NotFoundException(f"Failed to delete file '{path}', file does not exist!") from error
