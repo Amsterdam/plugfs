@@ -32,6 +32,9 @@ class AzureFile(File):
     async def get_iterator(self) -> AsyncIterator[bytes]:
         return await self._adapter.get_iterator(self._path)
 
+    async def delete(self) -> None:
+        await self._adapter.delete(self._path)
+
 
 @final
 class AzureStorageBlobsAdapter(Adapter):
@@ -111,6 +114,17 @@ class AzureStorageBlobsAdapter(Adapter):
     async def makedirs(self, path: str) -> None:
         """Azure storage does not really have directories, so we don't need to do anything here.
         The path will just be part of the blob name."""
+
+    async def delete(self, path: str) -> None:
+        blob_client = self._client.get_blob_client(path)
+
+        async with blob_client:
+            try:
+                await blob_client.delete_blob()
+            except ResourceNotFoundError as error:
+                raise NotFoundException(
+                    f"Failed to delete file '{path}', file does not exist!"
+                ) from error
 
     async def _write(self, path: str, data: bytes | AsyncIterator[bytes]) -> AzureFile:
         blob_client = self._client.get_blob_client(path)

@@ -226,3 +226,28 @@ class TestLocalAdapter:
         assert path.exists(dir_path)
 
         os.rmdir(dir_path)
+
+    @pytest.mark.anyio
+    async def test_delete_non_existing_file(self) -> None:
+        adapter = LocalAdapter()
+        file_path = "/this/path/does/not/exist"
+
+        with pytest.raises(NotFoundException) as exception_info:
+            await adapter.delete(file_path)
+
+        assert (
+            str(exception_info.value)
+            == f"Failed to delete file '{file_path}', file does not exist!"
+        )
+
+    @pytest.mark.anyio
+    async def test_delete(self) -> None:
+        adapter = LocalAdapter()
+        file_path = path.join("/tmp", str(uuid4()))
+
+        with open(file_path, "wb") as file:
+            file.write(b"Hello world!")
+
+        await adapter.delete(file_path)
+
+        assert not path.exists(file_path)
