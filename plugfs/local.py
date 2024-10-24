@@ -117,4 +117,6 @@ class LocalAdapter(Adapter):
         try:
             await remove(path)
         except FileNotFoundError as error:
-            raise NotFoundException(f"Failed to delete file '{path}', file does not exist!") from error
+            raise NotFoundException(
+                f"Failed to delete file '{path}', file does not exist!"
+            ) from error

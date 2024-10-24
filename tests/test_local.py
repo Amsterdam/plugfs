@@ -235,7 +235,10 @@ class TestLocalAdapter:
         with pytest.raises(NotFoundException) as exception_info:
             await adapter.delete(file_path)
 
-        assert str(exception_info.value) == f"Failed to delete file '{file_path}', file does not exist!"
+        assert (
+            str(exception_info.value)
+            == f"Failed to delete file '{file_path}', file does not exist!"
+        )
 
     @pytest.mark.anyio
     async def test_delete(self) -> None:
