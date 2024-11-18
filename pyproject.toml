@@ -8,7 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 aiofiles = "^24.1.0"
-aiohttp = {extras = ["speedups"], version = "^3.10.8"}
+aiohttp = {extras = ["speedups"], version = "^3.11.2"}
 azure-storage-blob = "^12.23.1"
 
 [tool.poetry.group.dev.dependencies]
