@@ -12,7 +12,7 @@ aiohttp = {extras = ["speedups"], version = "^3.11.11"}
 azure-storage-blob = "^12.24.0"
 
 [tool.poetry.group.dev.dependencies]
-anyio = "^4.7.0"
+anyio = "^4.8.0"
 black = "^24.8.0"
 isort = "^5.13.2"
 mypy = "^1.14.1"
