@@ -1,15 +1,17 @@
-[tool.poetry]
+[project]
 name = "plugfs"
 version = "0.1.0"
 description = ""
-authors = ["Youri Westerman <y.westerman@amsterdam.nl>"]
+authors = [
+    {name = "Youri Westerman",email = "y.westerman@amsterdam.nl"},
+]
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-aiofiles = "^24.1.0"
-aiohttp = {extras = ["speedups"], version = "^3.11.11"}
-azure-storage-blob = "^12.24.1"
+requires-python = ">=3.12"
+dependencies = [
+    "aiofiles (>=24.1.0,<25.0.0)",
+    "aiohttp[speedups] (>=3.11.11,<4.0.0)",
+    "azure-storage-blob (>=12.24.1,<13.0.0)",
+]
 
 [tool.poetry.group.dev.dependencies]
 anyio = "^4.8.0"
