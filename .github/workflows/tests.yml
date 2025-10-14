@@ -21,7 +21,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build containers
-        run: docker buildx bake --file docker-compose.yml
+        run: docker buildx bake --file compose.yaml
 
       - name: Test
         run: docker compose run --rm plugfs uv run pytest --cov --cov-fail-under=95 -v
