@@ -1,0 +1,23 @@
+services:
+  plugfs:
+    image: amsterdam/plugfs
+    build:
+      context: .
+      dockerfile: Containerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.13}
+    environment:
+      AZURE_STORAGE_URL: http://azurite:10000
+      AZURE_ACCOUNT_NAME: devstoreaccount1
+      AZURE_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_CONTAINER: "plugfscontainer"
+    volumes:
+      - ".:/app"
+    depends_on:
+      - azurite
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    command: azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --debug /var/log/azurite.log
+    ports:
+      - "10000:10000"
