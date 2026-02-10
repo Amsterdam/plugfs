@@ -10,7 +10,7 @@ requires-python = ">=3.13,<4.0"
 dependencies = [
     "aiofiles (>=24.1.0,<26.0.0)",
     "aiohttp[speedups] (>=3.11.11,<4.0.0)",
-    "azure-storage-blob (>=12.27.1,<12.29.0)", # Currently 12.18.0 is not compatible with Azurite (latest 3.35.0)
+    "azure-storage-blob (>=12.27.1,<12.29.0)",
 ]
 
 [dependency-groups]
