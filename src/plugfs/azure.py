@@ -48,15 +48,17 @@ class AzureStorageBlobsAdapter(Adapter):
             path += "/"
 
         items: list[_FilesystemItem] = []
+        seen_directories: set[str] = set()
 
         async for blob in self._client.list_blobs(name_starts_with=path):
-            relative_path = os.path.relpath(blob.name, path)
+            relative_path = blob.name.removeprefix(path)
 
-            if not "/" in relative_path:
+            if "/" not in relative_path:
                 items.append(AzureFile(blob.name, self))
             else:
-                directory_name = os.path.dirname(relative_path)
-                if directory_name and not "/" in directory_name:
+                directory_name = relative_path.split("/")[0]
+                if directory_name and directory_name not in seen_directories:
+                    seen_directories.add(directory_name)
                     items.append(Directory(f"{path}{directory_name}"))
 
         return items
