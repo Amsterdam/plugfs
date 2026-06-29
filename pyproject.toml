@@ -15,7 +15,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "anyio>=4.14.0",
+    "anyio>=4.14.1",
     "black>=26.5.1",
     "isort>=8.0.1",
     "mypy>=2.1.0",
