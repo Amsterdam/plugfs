@@ -12,9 +12,7 @@ dependencies = [
     "azure-storage-blob (>=12.30.0,<12.31.0)",
     "aiohttp[speedups] (>=3.14.1,<4.0.0)",
 ]
-urls = {
-    "repository" = "https://github.com/Amsterdam/plugfs",
-}
+urls = {repository = "https://github.com/Amsterdam/plugfs"}
 
 [dependency-groups]
 dev = [
