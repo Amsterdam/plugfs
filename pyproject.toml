@@ -16,7 +16,7 @@ urls = {repository = "https://github.com/Amsterdam/plugfs"}
 
 [dependency-groups]
 dev = [
-    "anyio>=4.14.1",
+    "anyio>=4.14.2",
     "black>=26.5.1",
     "isort>=8.0.1",
     "mypy>=2.2.0",
