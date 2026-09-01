@@ -18,7 +18,7 @@ urls = {repository = "https://github.com/Amsterdam/plugfs"}
 dev = [
     "anyio>=4.14.2",
     "black>=26.5.1",
-    "isort>=8.0.1",
+    "isort>=9.0.1",
     "mypy>=2.3.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
